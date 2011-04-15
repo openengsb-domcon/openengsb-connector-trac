@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.xmlrpc.XmlRpcException;
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
 import org.openengsb.connector.trac.internal.models.constants.TracFieldConstants;
@@ -36,10 +34,12 @@ import org.openengsb.core.common.AbstractOpenEngSBService;
 import org.openengsb.domain.issue.IssueDomain;
 import org.openengsb.domain.issue.models.Issue;
 import org.openengsb.domain.issue.models.IssueAttribute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TracConnector extends AbstractOpenEngSBService implements IssueDomain {
 
-    private static Log log = LogFactory.getLog(TracConnector.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TracConnector.class);
 
     private AliveState state = AliveState.DISCONNECTED;
     private final TicketHandlerFactory ticketFactory;
@@ -58,9 +58,9 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
         try {
             issueId = ticket.create(issue.getSummary(), issue.getDescription(), attributes).toString();
             state = AliveState.ONLINE;
-            log.info("Successfully created issue " + issue.getSummary() + ", ID is: " + issueId + ".");
+            LOGGER.info("Successfully created issue {}, ID is: {}.", issue.getSummary(), issueId);
         } catch (XmlRpcException e) {
-            log.error("Error creating issue " + issue.getSummary() + ". XMLRPC call failed.");
+            LOGGER.error("Error creating issue {}. XMLRPC call failed.", issue.getSummary());
             state = AliveState.OFFLINE;
         }
         return issueId.toString();
@@ -70,9 +70,9 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
         try {
             Ticket ticket = createTicket();
             ticket.delete(Integer.valueOf(id));
-            log.info("Successfully deleted issue " + id + ".");
+            LOGGER.info("Successfully deleted issue {}.", id);
         } catch (XmlRpcException e) {
-            log.error("Error deleting issue " + id + ". XMLRPC call failed.");
+            LOGGER.error("Error deleting issue {}. XMLRPC call failed.", id);
         }
     }
 
@@ -81,9 +81,9 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
         try {
             Ticket ticket = createTicket();
             ticket.update(Integer.valueOf(id), comment);
-            log.info("Successfully added comment to issue " + id + ".");
+            LOGGER.info("Successfully added comment to issue {}.", id);
         } catch (XmlRpcException e) {
-            log.error("Error adding comment to issue " + id + ". XMLRPC call failed.");
+            LOGGER.error("Error adding comment to issue {}. XMLRPC call failed.", id);
         }
     }
 
@@ -97,9 +97,9 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
         try {
             Ticket ticket = createTicket();
             ticket.update(Integer.valueOf(id), comment, attributes);
-            log.info("Successfully updated issue " + id + " with " + changes.size() + " changes.");
+            LOGGER.info("Successfully updated issue {} with {} changes.", id, changes.size());
         } catch (XmlRpcException e) {
-            log.error("Error updating issue " + id + ". XMLRPC call failed.");
+            LOGGER.error("Error updating issue {}. XMLRPC call failed.", id);
         }
     }
 
@@ -154,8 +154,8 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
                     addStatus(attributes, Issue.Status.valueOf(entry.getValue()));
                 }
             } catch (ClassCastException e) {
-                log.error(
-                    "Wrong value provided for field " + entry.getKey() + ": " + entry.getValue().getClass().getName());
+                LOGGER.error(
+                    "Wrong value provided for field {}: {}", entry.getKey(), entry.getValue().getClass().getName());
             }
         }
 
