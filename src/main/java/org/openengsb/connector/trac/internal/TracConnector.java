@@ -122,6 +122,16 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
         throw new DomainMethodNotImplementedException("method not yet implemented");
     }
 
+    @Override
+    public void addComponent(String arg0) {
+        throw new DomainMethodNotImplementedException();
+    }
+
+    @Override
+    public void removeComponent(String arg0) {
+        throw new DomainMethodNotImplementedException();
+    }
+
     private Ticket createTicket() {
         if (ticketFactory != null) {
             Ticket ticket = ticketFactory.createTicket();
