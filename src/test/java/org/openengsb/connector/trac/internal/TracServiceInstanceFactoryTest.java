@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
+import org.openengsb.core.api.Domain;
 
 public class TracServiceInstanceFactoryTest {
 
@@ -37,7 +38,8 @@ public class TracServiceInstanceFactoryTest {
         TracServiceInstanceFactory factory = new TracServiceInstanceFactory();
         Map<String, String> attributes = new HashMap<String, String>();
 
-        TracConnector tracConnector = factory.createServiceInstance("id1", attributes);
+        Domain tracConnector = factory.createNewInstance("id1");
+        factory.applyAttributes(tracConnector, attributes);
         assertThat(tracConnector.getInstanceId(), is("id1"));
     }
 
@@ -50,11 +52,11 @@ public class TracServiceInstanceFactoryTest {
         when(tracConnector.getTicketHandlerFactory()).thenReturn(tc);
 
         Map<String, String> newAttributes = new HashMap<String, String>();
-        newAttributes.put(TracServiceInstanceFactory.ATTRIB_SERVER, "newUrl");
-        newAttributes.put(TracServiceInstanceFactory.ATTRIB_USERNAME, "newUser");
-        newAttributes.put(TracServiceInstanceFactory.ATTRIB_PASSWORD, "newPassword");
+        newAttributes.put(TracConnector.ATTRIB_SERVER, "newUrl");
+        newAttributes.put(TracConnector.ATTRIB_USERNAME, "newUser");
+        newAttributes.put(TracConnector.ATTRIB_PASSWORD, "newPassword");
 
-        factory.updateServiceInstance(tracConnector, newAttributes);
+        factory.applyAttributes(tracConnector, newAttributes);
         verify(tc, times(1)).setServerUrl("newUrl");
         verify(tc, times(1)).setUsername("newUser");
         verify(tc, times(1)).setUserPassword("newPassword");

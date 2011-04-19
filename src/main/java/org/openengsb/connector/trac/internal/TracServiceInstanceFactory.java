@@ -17,80 +17,36 @@
 
 package org.openengsb.connector.trac.internal;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
-import org.openengsb.core.api.ServiceInstanceFactory;
-import org.openengsb.core.api.descriptor.AttributeDefinition;
-import org.openengsb.core.api.descriptor.ServiceDescriptor;
-import org.openengsb.core.api.descriptor.ServiceDescriptor.Builder;
-import org.openengsb.core.api.validation.MultipleAttributeValidationResult;
-import org.openengsb.core.api.validation.MultipleAttributeValidationResultImpl;
-import org.openengsb.domain.issue.IssueDomain;
+import org.openengsb.core.api.Domain;
+import org.openengsb.core.common.AbstractConnectorInstanceFactory;
 
-public class TracServiceInstanceFactory implements ServiceInstanceFactory<IssueDomain, TracConnector> {
+public class TracServiceInstanceFactory extends
+        AbstractConnectorInstanceFactory<TracConnector> {
 
-    static final String ATTRIB_SERVER = "serverUrl";
-    static final String ATTRIB_PASSWORD = "userPassword";
-    static final String ATTRIB_USERNAME = "username";
+    public Domain createNewInstance(String id) {
+        TicketHandlerFactory ticketFactory = new TicketHandlerFactory();
+        TracConnector tracConnector = new TracConnector(id, ticketFactory);
+        return tracConnector;
+    };
 
     @Override
-    public ServiceDescriptor getDescriptor(Builder builder) {
-        builder.name("trac.name").description("trac.description");
-
-        builder
-            .attribute(
-                buildAttribute(builder, ATTRIB_USERNAME, "username.outputMode", "username.outputMode.description"))
-            .attribute(builder.newAttribute().id(ATTRIB_PASSWORD).name("userPassword.outputMode")
-                .description("userPassword.outputMode.description").defaultValue("").asPassword().build())
-            .attribute(builder.newAttribute().id(ATTRIB_SERVER).name("serverUrl.outputMode")
-                .description("serverUrl.outputMode.description").defaultValue("").required().build());
-
-        return builder.build();
-    }
-
-    private AttributeDefinition buildAttribute(ServiceDescriptor.Builder builder, String id, String nameId,
-                                               String descriptionId) {
-        return builder.newAttribute().id(id).name(nameId).description(descriptionId).defaultValue("").required()
-            .build();
-    }
-
-    @Override
-    public void updateServiceInstance(TracConnector instance, Map<String, String> attributes) {
+    public void doApplyAttributes(TracConnector instance, Map<String, String> attributes) {
         TicketHandlerFactory ticketFactory = instance.getTicketHandlerFactory();
         updateTicketHandlerFactory(attributes, ticketFactory);
     }
 
-    @Override
-    public MultipleAttributeValidationResult updateValidation(TracConnector instance, Map<String, String> attributes) {
-        return new MultipleAttributeValidationResultImpl(true, new HashMap<String, String>());
-    }
-
-    @Override
-    public TracConnector createServiceInstance(String id, Map<String, String> attributes) {
-        TicketHandlerFactory ticketFactory = new TicketHandlerFactory();
-        updateTicketHandlerFactory(attributes, ticketFactory);
-        TracConnector tracConnector = new TracConnector(id, ticketFactory);
-
-        updateServiceInstance(tracConnector, attributes);
-        return tracConnector;
-    }
-
-    @Override
-    public MultipleAttributeValidationResult createValidation(String id, Map<String, String> attributes) {
-        return new MultipleAttributeValidationResultImpl(true, new HashMap<String, String>());
-    }
-
     private void updateTicketHandlerFactory(Map<String, String> attributes, TicketHandlerFactory ticketFactory) {
-        if (attributes.containsKey(ATTRIB_SERVER)) {
-            ticketFactory.setServerUrl(attributes.get(ATTRIB_SERVER));
+        if (attributes.containsKey(TracConnector.ATTRIB_SERVER)) {
+            ticketFactory.setServerUrl(attributes.get(TracConnector.ATTRIB_SERVER));
         }
-        if (attributes.containsKey(ATTRIB_USERNAME)) {
-            ticketFactory.setUsername(attributes.get(ATTRIB_USERNAME));
+        if (attributes.containsKey(TracConnector.ATTRIB_USERNAME)) {
+            ticketFactory.setUsername(attributes.get(TracConnector.ATTRIB_USERNAME));
         }
-        if (attributes.containsKey(ATTRIB_PASSWORD)) {
-            ticketFactory.setUserPassword(attributes.get(ATTRIB_PASSWORD));
+        if (attributes.containsKey(TracConnector.ATTRIB_PASSWORD)) {
+            ticketFactory.setUserPassword(attributes.get(TracConnector.ATTRIB_PASSWORD));
         }
     }
 }

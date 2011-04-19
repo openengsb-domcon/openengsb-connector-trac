@@ -39,6 +39,10 @@ import org.slf4j.LoggerFactory;
 
 public class TracConnector extends AbstractOpenEngSBService implements IssueDomain {
 
+    public static final String ATTRIB_SERVER = "serverUrl";
+    public static final String ATTRIB_PASSWORD = "userPassword";
+    public static final String ATTRIB_USERNAME = "username";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TracConnector.class);
 
     private AliveState state = AliveState.DISCONNECTED;
