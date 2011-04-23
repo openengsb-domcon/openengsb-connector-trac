@@ -33,7 +33,7 @@ public class TracConnectorUT {
         TicketHandlerFactory ticketFactory = new TicketHandlerFactory();
         ticketFactory.setUsername("");
         ticketFactory.setUserPassword("");
-        ticketFactory.setServerUrl("http://127.0.0.1:8000/test/rpc");
+        ticketFactory.setServerUrl("http://127.0.0.1:8000/myTracProj/xmlrpc");
         TracConnector tracImpl = new TracConnector("1", ticketFactory);
         Issue issue = new Issue();
         issue.setDescription("test Issue");
@@ -45,5 +45,4 @@ public class TracConnectorUT {
 
         assertThat(id, not(is("-1")));
     }
-
 }

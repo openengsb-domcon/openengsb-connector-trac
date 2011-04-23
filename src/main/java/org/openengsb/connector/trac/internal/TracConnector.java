@@ -156,6 +156,8 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
             try {
                 if (entry.getKey().equals(Issue.Field.DESCRIPTION)) {
                     attributes.put(TracFieldConstants.DESCRIPTION, entry.getValue());
+                } else if (entry.getKey().equals(Issue.Field.COMPONENT)) {
+                    attributes.put(TracFieldConstants.COMPONENT, entry.getValue());
                 } else if (entry.getKey().equals(Issue.Field.OWNER)) {
                     attributes.put(TracFieldConstants.OWNER, entry.getValue());
                 } else if (entry.getKey().equals(Issue.Field.REPORTER)) {
