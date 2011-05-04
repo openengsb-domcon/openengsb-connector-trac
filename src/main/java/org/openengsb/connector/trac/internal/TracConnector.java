@@ -17,9 +17,9 @@
 
 package org.openengsb.connector.trac.internal;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.xmlrpc.XmlRpcException;
@@ -118,7 +118,7 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
     }
 
     @Override
-    public ArrayList<String> generateReleaseReport(String releaseId) {
+    public List<String> generateReleaseReport(String releaseId) {
         throw new DomainMethodNotImplementedException("method not yet implemented");
     }
 
