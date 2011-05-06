@@ -26,5 +26,6 @@ public enum TracFieldConstants implements IssueAttribute {
         SUMMARY,
         DESCRIPTION,
         PRIORITY,
-        STATUS
+        STATUS,
+        COMPONENT
 }
