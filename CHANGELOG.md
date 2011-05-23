@@ -1,3 +1,16 @@
+openengsb-connector-trac-1.2.2 2011-05-23
+---------------------------------------------------------------------
+
+Upgrade openengsb-framework and issue-domain to latest versions.
+
+** Library Upgrade
+    * [OPENENGSB-1585] - Upgrade openengsb-domain-issue to 1.2.2
+    * [OPENENGSB-1609] - Upgrade openengsb-framework to 1.3.0.M2
+
+** Task
+    * [OPENENGSB-1581] - Release openengsb-connector-trac-1.2.2
+
+
 openengsb-connector-trac-1.2.1 2011-05-16
 ---------------------------------------------------------------------
 
