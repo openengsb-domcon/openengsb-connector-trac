@@ -29,7 +29,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
-import org.openengsb.core.api.Domain;
+import org.openengsb.core.api.Connector;
 
 public class TracServiceInstanceFactoryTest {
 
@@ -38,7 +38,7 @@ public class TracServiceInstanceFactoryTest {
         TracServiceInstanceFactory factory = new TracServiceInstanceFactory();
         Map<String, String> attributes = new HashMap<String, String>();
 
-        Domain tracConnector = factory.createNewInstance("id1");
+        Connector tracConnector = factory.createNewInstance("id1");
         factory.applyAttributes(tracConnector, attributes);
         assertThat(tracConnector.getInstanceId(), is("id1"));
     }
@@ -52,9 +52,9 @@ public class TracServiceInstanceFactoryTest {
         when(tracConnector.getTicketHandlerFactory()).thenReturn(tc);
 
         Map<String, String> newAttributes = new HashMap<String, String>();
-        newAttributes.put(TracConnector.ATTRIB_SERVER, "newUrl");
-        newAttributes.put(TracConnector.ATTRIB_USERNAME, "newUser");
-        newAttributes.put(TracConnector.ATTRIB_PASSWORD, "newPassword");
+        newAttributes.put(TicketHandlerFactory.ATTRIB_SERVER, "newUrl");
+        newAttributes.put(TicketHandlerFactory.ATTRIB_USERNAME, "newUser");
+        newAttributes.put(TicketHandlerFactory.ATTRIB_PASSWORD, "newPassword");
 
         factory.applyAttributes(tracConnector, newAttributes);
         verify(tc, times(1)).setServerUrl("newUrl");
