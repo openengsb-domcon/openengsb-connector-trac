@@ -1,5 +1,6 @@
 package org.openengsb.connector.trac.internal;
 
+import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
 import org.openengsb.core.api.descriptor.AttributeDefinition;
 import org.openengsb.core.api.descriptor.ServiceDescriptor;
 import org.openengsb.core.api.descriptor.ServiceDescriptor.Builder;
@@ -12,18 +13,18 @@ public class TracConnectorProvider extends AbstractConnectorProvider {
         builder.id(this.id);
         builder.name("trac.name").description("trac.description");
         builder.attribute(
-            buildAttribute(builder, TracConnector.ATTRIB_USERNAME, "username.outputMode",
+            buildAttribute(builder, TicketHandlerFactory.ATTRIB_USERNAME, "username.outputMode",
                 "username.outputMode.description"))
             .attribute(
                 builder.newAttribute()
-                    .id(TracConnector.ATTRIB_PASSWORD)
+                    .id(TicketHandlerFactory.ATTRIB_PASSWORD)
                     .name("userPassword.outputMode")
                     .description(
                         "userPassword.outputMode.description")
                     .defaultValue("").asPassword().build())
             .attribute(
                 builder.newAttribute()
-                    .id(TracConnector.ATTRIB_SERVER)
+                    .id(TicketHandlerFactory.ATTRIB_SERVER)
                     .name("serverUrl.outputMode")
                     .description("serverUrl.outputMode.description")
                     .defaultValue("").required().build());

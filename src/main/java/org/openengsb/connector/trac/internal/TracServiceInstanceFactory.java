@@ -20,15 +20,22 @@ package org.openengsb.connector.trac.internal;
 import java.util.Map;
 
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
-import org.openengsb.core.api.Domain;
+import org.openengsb.core.api.Connector;
+import org.openengsb.core.api.ekb.EngineeringKnowledgeBaseService;
 import org.openengsb.core.common.AbstractConnectorInstanceFactory;
+import org.openengsb.domain.issue.IssueDomainEvents;
 
 public class TracServiceInstanceFactory extends
         AbstractConnectorInstanceFactory<TracConnector> {
+    
+    private IssueDomainEvents issueEvents;
+    private EngineeringKnowledgeBaseService ekbService;
 
-    public Domain createNewInstance(String id) {
+    public Connector createNewInstance(String id) {
         TicketHandlerFactory ticketFactory = new TicketHandlerFactory();
         TracConnector tracConnector = new TracConnector(id, ticketFactory);
+        tracConnector.setEkbService(ekbService);
+        tracConnector.setIssueEvents(issueEvents);
         return tracConnector;
     };
 
@@ -39,14 +46,22 @@ public class TracServiceInstanceFactory extends
     }
 
     private void updateTicketHandlerFactory(Map<String, String> attributes, TicketHandlerFactory ticketFactory) {
-        if (attributes.containsKey(TracConnector.ATTRIB_SERVER)) {
-            ticketFactory.setServerUrl(attributes.get(TracConnector.ATTRIB_SERVER));
+        if (attributes.containsKey(TicketHandlerFactory.ATTRIB_SERVER)) {
+            ticketFactory.setServerUrl(attributes.get(TicketHandlerFactory.ATTRIB_SERVER));
         }
-        if (attributes.containsKey(TracConnector.ATTRIB_USERNAME)) {
-            ticketFactory.setUsername(attributes.get(TracConnector.ATTRIB_USERNAME));
+        if (attributes.containsKey(TicketHandlerFactory.ATTRIB_USERNAME)) {
+            ticketFactory.setUsername(attributes.get(TicketHandlerFactory.ATTRIB_USERNAME));
         }
-        if (attributes.containsKey(TracConnector.ATTRIB_PASSWORD)) {
-            ticketFactory.setUserPassword(attributes.get(TracConnector.ATTRIB_PASSWORD));
+        if (attributes.containsKey(TicketHandlerFactory.ATTRIB_PASSWORD)) {
+            ticketFactory.setUserPassword(attributes.get(TicketHandlerFactory.ATTRIB_PASSWORD));
         }
+    }
+    
+    public void setIssueEvents(IssueDomainEvents issueEvents) {
+        this.issueEvents = issueEvents;
+    }
+
+    public void setEkbService(EngineeringKnowledgeBaseService ekbService) {
+        this.ekbService = ekbService;
     }
 }
