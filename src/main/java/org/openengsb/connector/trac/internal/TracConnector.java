@@ -250,9 +250,8 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
             return;
         }
         String oid = "trac/" + ticketFactory.getUsername() + "/" + issue.getId();
-        String role = "connector";
         try {
-            sendEDBEvent(type, issue, issueEvents, oid, role);
+            sendEDBEvent(type, issue, issueEvents, oid);
         } catch (EDBException e) {
             throw new DomainMethodExecutionException(e);
         }
