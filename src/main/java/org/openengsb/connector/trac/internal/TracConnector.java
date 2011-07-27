@@ -249,9 +249,8 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
         if(type == EDBEventType.UPDATE) {
             return;
         }
-        String oid = "trac/" + ticketFactory.getUsername() + "/" + issue.getId();
         try {
-            sendEDBEvent(type, issue, issueEvents, oid);
+            sendEDBEvent(type, issue, issue.getId(), issueEvents);
         } catch (EDBException e) {
             throw new DomainMethodExecutionException(e);
         }
