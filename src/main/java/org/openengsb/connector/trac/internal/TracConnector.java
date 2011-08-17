@@ -250,7 +250,7 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
             return;
         }
         try {
-            sendEDBEvent(type, issue, issue.getId(), issueEvents);
+            sendEDBEvent(type, issue, issueEvents);
         } catch (EDBException e) {
             throw new DomainMethodExecutionException(e);
         }
