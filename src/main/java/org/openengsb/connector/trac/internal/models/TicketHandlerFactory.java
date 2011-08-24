@@ -27,6 +27,10 @@ import org.openengsb.connector.trac.internal.models.xmlrpc.TrackerDynamicProxy;
 
 public class TicketHandlerFactory {
 
+    public static final String ATTRIB_SERVER = "serverUrl";
+    public static final String ATTRIB_PASSWORD = "userPassword";
+    public static final String ATTRIB_USERNAME = "username";
+
     String serverUrl = "";
     String username = "";
     String userPassword = "";
@@ -63,5 +67,13 @@ public class TicketHandlerFactory {
 
     public void setUserPassword(String userPassword) {
         this.userPassword = userPassword;
+    }
+
+    public String getServerUrl() {
+        return serverUrl;
+    }
+
+    public String getUsername() {
+        return username;
     }
 }

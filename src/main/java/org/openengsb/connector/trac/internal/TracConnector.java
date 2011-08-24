@@ -29,21 +29,28 @@ import org.openengsb.connector.trac.internal.models.constants.TracPriorityConsta
 import org.openengsb.connector.trac.internal.models.constants.TracStatusConstants;
 import org.openengsb.connector.trac.internal.models.xmlrpc.Ticket;
 import org.openengsb.core.api.AliveState;
+import org.openengsb.core.api.DomainMethodExecutionException;
 import org.openengsb.core.api.DomainMethodNotImplementedException;
-import org.openengsb.core.common.AbstractOpenEngSBService;
+import org.openengsb.core.api.edb.EDBEventType;
+import org.openengsb.core.api.edb.EDBException;
+import org.openengsb.core.api.ekb.EngineeringKnowledgeBaseService;
+import org.openengsb.core.common.AbstractOpenEngSBConnectorService;
 import org.openengsb.domain.issue.IssueDomain;
+import org.openengsb.domain.issue.IssueDomainEvents;
+import org.openengsb.domain.issue.models.Field;
 import org.openengsb.domain.issue.models.Issue;
 import org.openengsb.domain.issue.models.IssueAttribute;
+import org.openengsb.domain.issue.models.Priority;
+import org.openengsb.domain.issue.models.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TracConnector extends AbstractOpenEngSBService implements IssueDomain {
-
-    public static final String ATTRIB_SERVER = "serverUrl";
-    public static final String ATTRIB_PASSWORD = "userPassword";
-    public static final String ATTRIB_USERNAME = "username";
+public class TracConnector extends AbstractOpenEngSBConnectorService implements IssueDomain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TracConnector.class);
+    
+    private IssueDomainEvents issueEvents;
+    private EngineeringKnowledgeBaseService ekbService;
 
     private AliveState state = AliveState.DISCONNECTED;
     private final TicketHandlerFactory ticketFactory;
@@ -63,6 +70,8 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
             issueId = ticket.create(issue.getSummary(), issue.getDescription(), attributes).toString();
             state = AliveState.ONLINE;
             LOGGER.info("Successfully created issue {}, ID is: {}.", issue.getSummary(), issueId);
+            
+            sendEvent(EDBEventType.INSERT, issue);
         } catch (XmlRpcException e) {
             LOGGER.error("Error creating issue {}. XMLRPC call failed.", issue.getSummary());
             state = AliveState.OFFLINE;
@@ -101,10 +110,19 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
         try {
             Ticket ticket = createTicket();
             ticket.update(Integer.valueOf(id), comment, attributes);
+            
+            Issue issue = loadIssue(Integer.valueOf(id));
+            sendEvent(EDBEventType.UPDATE, issue);
             LOGGER.info("Successfully updated issue {} with {} changes.", id, changes.size());
         } catch (XmlRpcException e) {
             LOGGER.error("Error updating issue {}. XMLRPC call failed.", id);
         }
+    }
+    
+    private Issue loadIssue(Integer id) {
+        Issue issue = ekbService.createEmptyModelObject(Issue.class);
+        // TODO: implement !!!
+        return issue;
     }
 
     @Override
@@ -154,20 +172,20 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
 
         for (Map.Entry<IssueAttribute, String> entry : changes.entrySet()) {
             try {
-                if (entry.getKey().equals(Issue.Field.DESCRIPTION)) {
+                if (entry.getKey().equals(Field.DESCRIPTION)) {
                     attributes.put(TracFieldConstants.DESCRIPTION, entry.getValue());
-                } else if (entry.getKey().equals(Issue.Field.COMPONENT)) {
+                } else if (entry.getKey().equals(Field.COMPONENT)) {
                     attributes.put(TracFieldConstants.COMPONENT, entry.getValue());
-                } else if (entry.getKey().equals(Issue.Field.OWNER)) {
+                } else if (entry.getKey().equals(Field.OWNER)) {
                     attributes.put(TracFieldConstants.OWNER, entry.getValue());
-                } else if (entry.getKey().equals(Issue.Field.REPORTER)) {
+                } else if (entry.getKey().equals(Field.REPORTER)) {
                     attributes.put(TracFieldConstants.SUMMARY, entry.getValue());
-                } else if (entry.getKey().equals(Issue.Field.SUMMARY)) {
+                } else if (entry.getKey().equals(Field.SUMMARY)) {
                     attributes.put(TracFieldConstants.SUMMARY, entry.getValue());
-                } else if (entry.getKey().equals(Issue.Field.PRIORITY)) {
-                    addPriority(attributes, Issue.Priority.valueOf(entry.getValue()));
-                } else if (entry.getKey().equals(Issue.Field.STATUS)) {
-                    addStatus(attributes, Issue.Status.valueOf(entry.getValue()));
+                } else if (entry.getKey().equals(Field.PRIORITY)) {
+                    addPriority(attributes, Priority.valueOf(entry.getValue()));
+                } else if (entry.getKey().equals(Field.STATUS)) {
+                    addStatus(attributes, Status.valueOf(entry.getValue()));
                 }
             } catch (ClassCastException e) {
                 LOGGER.error(
@@ -194,36 +212,60 @@ public class TracConnector extends AbstractOpenEngSBService implements IssueDoma
         return attributes;
     }
 
-    private void addPriority(Hashtable<IssueAttribute, String> attributes, Issue.Priority priority) {
+    private void addPriority(Hashtable<IssueAttribute, String> attributes, Priority priority) {
         if (priority != null) {
-            if (priority.equals(Issue.Priority.HIGH)) {
+            if (priority.equals(Priority.HIGH)) {
                 attributes.put(TracFieldConstants.PRIORITY, TracPriorityConstants.HIGH.toString());
-            } else if (priority.equals(Issue.Priority.IMMEDIATE)) {
+            } else if (priority.equals(Priority.IMMEDIATE)) {
                 attributes.put(TracFieldConstants.PRIORITY, TracPriorityConstants.IMMEDIATE.toString());
-            } else if (priority.equals(Issue.Priority.LOW)) {
+            } else if (priority.equals(Priority.LOW)) {
                 attributes.put(TracFieldConstants.PRIORITY, TracPriorityConstants.LOW.toString());
-            } else if (priority.equals(Issue.Priority.NORMAL)) {
+            } else if (priority.equals(Priority.NORMAL)) {
                 attributes.put(TracFieldConstants.PRIORITY, TracPriorityConstants.NORMAL.toString());
-            } else if (priority.equals(Issue.Priority.URGEND)) {
+            } else if (priority.equals(Priority.URGEND)) {
                 attributes.put(TracFieldConstants.PRIORITY, TracPriorityConstants.URGENT.toString());
             }
         }
     }
 
-    private void addStatus(Hashtable<IssueAttribute, String> attributes, Issue.Status status) {
+    private void addStatus(Hashtable<IssueAttribute, String> attributes, Status status) {
         if (status != null) {
-            if (status.equals(Issue.Status.NEW)) {
+            if (status.equals(Status.NEW)) {
                 attributes.put(TracFieldConstants.STATUS, TracStatusConstants.NEW.toString());
-            } else if (status.equals(Issue.Status.ASSIGNED)) {
+            } else if (status.equals(Status.ASSIGNED)) {
                 attributes.put(TracFieldConstants.STATUS, TracStatusConstants.ASSIGNED.toString());
-            } else if (status.equals(Issue.Status.CLOSED)) {
+            } else if (status.equals(Status.CLOSED)) {
                 attributes.put(TracFieldConstants.STATUS, TracStatusConstants.CLOSED.toString());
             }
+        }
+    }
+    
+    /**
+     * Sends a CUD event. The type is defined by the enumeration EDBEventType. Also the oid and the role are defined
+     * here.
+     */
+    private void sendEvent(EDBEventType type, Issue issue) {
+        // TODO: remove this if statement after the loadIssue is implemented
+        if(type == EDBEventType.UPDATE) {
+            return;
+        }
+        try {
+            sendEDBEvent(type, issue, issueEvents);
+        } catch (EDBException e) {
+            throw new DomainMethodExecutionException(e);
         }
     }
 
     @Override
     public AliveState getAliveState() {
         return state;
+    }
+    
+    public void setIssueEvents(IssueDomainEvents issueEvents) {
+        this.issueEvents = issueEvents;
+    }
+
+    public void setEkbService(EngineeringKnowledgeBaseService ekbService) {
+        this.ekbService = ekbService;
     }
 }
