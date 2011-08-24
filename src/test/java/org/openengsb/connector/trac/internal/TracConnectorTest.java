@@ -21,6 +21,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -33,13 +34,20 @@ import java.util.Hashtable;
 import org.apache.xmlrpc.XmlRpcException;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
 import org.openengsb.connector.trac.internal.models.constants.TracFieldConstants;
 import org.openengsb.connector.trac.internal.models.constants.TracPriorityConstants;
 import org.openengsb.connector.trac.internal.models.constants.TracStatusConstants;
 import org.openengsb.connector.trac.internal.models.xmlrpc.Ticket;
+import org.openengsb.core.api.ekb.EngineeringKnowledgeBaseService;
+import org.openengsb.domain.issue.IssueDomainEvents;
+import org.openengsb.domain.issue.models.Field;
 import org.openengsb.domain.issue.models.Issue;
 import org.openengsb.domain.issue.models.IssueAttribute;
+import org.openengsb.domain.issue.models.Priority;
+import org.openengsb.domain.issue.models.Status;
 
 public class TracConnectorTest {
 
@@ -52,18 +60,30 @@ public class TracConnectorTest {
         TicketHandlerFactory tc = mock(TicketHandlerFactory.class);
         tracConnector = new TracConnector("1", tc);
         when(tc.createTicket()).thenReturn(ticketMock);
+        EngineeringKnowledgeBaseService ekbService = mock(EngineeringKnowledgeBaseService.class);
+        doAnswer(new Answer<java.lang.Object>() {
+            public java.lang.Object answer(InvocationOnMock invocation) {
+                return new TestIssue();
+            }
+        })
+            .when(ekbService).createEmptyModelObject(Issue.class);
+        
+        IssueDomainEvents domainEvents = mock(IssueDomainEvents.class);
+        
+        tracConnector.setEkbService(ekbService);
+        tracConnector.setIssueEvents(domainEvents);
     }
 
     @Test
     public void createNewIssue() throws Exception {
-        Issue i = new Issue();
+        Issue i = new TestIssue();
         String s = "test " + new Date();
         i.setSummary(s);
         i.setDescription("testdescription");
         i.setOwner("testowner");
-        i.setPriority(Issue.Priority.URGEND);
+        i.setPriority(Priority.URGEND);
         i.setReporter("testreporter");
-        i.setStatus(Issue.Status.NEW);
+        i.setStatus(Status.NEW);
 
         Hashtable<Enum<?>, String> attributes = new Hashtable<Enum<?>, String>();
         attributes.put(TracFieldConstants.OWNER, "testowner");
@@ -91,7 +111,7 @@ public class TracConnectorTest {
     @Test
     public void testUpdateIssue() throws Exception {
         HashMap<IssueAttribute, String> changes = new HashMap<IssueAttribute, String>();
-        changes.put(Issue.Field.STATUS, Issue.Status.CLOSED.toString());
+        changes.put(Field.STATUS, Status.CLOSED.toString());
 
         Hashtable<IssueAttribute, String> result = new Hashtable<IssueAttribute, String>();
         result.put(TracFieldConstants.STATUS, TracStatusConstants.CLOSED.toString());
@@ -105,7 +125,7 @@ public class TracConnectorTest {
     public void testCreateOnNotExistingTicket_ShouldPrintErrorMessageAndDonotThrowException() throws Exception {
         when(ticketMock.create(anyString(), anyString(), any(Hashtable.class)))
             .thenThrow(new XmlRpcException("test"));
-        tracConnector.createIssue(new Issue());
+        tracConnector.createIssue(new TestIssue());
     }
 
     @Test
