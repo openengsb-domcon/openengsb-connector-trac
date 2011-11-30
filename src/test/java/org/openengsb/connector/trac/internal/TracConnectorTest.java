@@ -21,7 +21,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -34,14 +33,12 @@ import java.util.Hashtable;
 import org.apache.xmlrpc.XmlRpcException;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
 import org.openengsb.connector.trac.internal.models.constants.TracFieldConstants;
 import org.openengsb.connector.trac.internal.models.constants.TracPriorityConstants;
 import org.openengsb.connector.trac.internal.models.constants.TracStatusConstants;
 import org.openengsb.connector.trac.internal.models.xmlrpc.Ticket;
-import org.openengsb.core.api.ekb.EngineeringKnowledgeBaseService;
+import org.openengsb.core.common.util.ModelUtils;
 import org.openengsb.domain.issue.IssueDomainEvents;
 import org.openengsb.domain.issue.models.Field;
 import org.openengsb.domain.issue.models.Issue;
@@ -60,23 +57,14 @@ public class TracConnectorTest {
         TicketHandlerFactory tc = mock(TicketHandlerFactory.class);
         tracConnector = new TracConnector("1", tc);
         when(tc.createTicket()).thenReturn(ticketMock);
-        EngineeringKnowledgeBaseService ekbService = mock(EngineeringKnowledgeBaseService.class);
-        doAnswer(new Answer<java.lang.Object>() {
-            public java.lang.Object answer(InvocationOnMock invocation) {
-                return new TestIssue();
-            }
-        })
-            .when(ekbService).createEmptyModelObject(Issue.class);
         
         IssueDomainEvents domainEvents = mock(IssueDomainEvents.class);
-        
-        tracConnector.setEkbService(ekbService);
         tracConnector.setIssueEvents(domainEvents);
     }
 
     @Test
     public void createNewIssue() throws Exception {
-        Issue i = new TestIssue();
+        Issue i = ModelUtils.createEmptyModelObject(Issue.class);
         String s = "test " + new Date();
         i.setSummary(s);
         i.setDescription("testdescription");
@@ -125,7 +113,7 @@ public class TracConnectorTest {
     public void testCreateOnNotExistingTicket_ShouldPrintErrorMessageAndDonotThrowException() throws Exception {
         when(ticketMock.create(anyString(), anyString(), any(Hashtable.class)))
             .thenThrow(new XmlRpcException("test"));
-        tracConnector.createIssue(new TestIssue());
+        tracConnector.createIssue(ModelUtils.createEmptyModelObject(Issue.class));
     }
 
     @Test

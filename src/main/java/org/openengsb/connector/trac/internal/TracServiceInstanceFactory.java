@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
 import org.openengsb.core.api.Connector;
-import org.openengsb.core.api.ekb.EngineeringKnowledgeBaseService;
 import org.openengsb.core.common.AbstractConnectorInstanceFactory;
 import org.openengsb.domain.issue.IssueDomainEvents;
 
@@ -29,12 +28,10 @@ public class TracServiceInstanceFactory extends
         AbstractConnectorInstanceFactory<TracConnector> {
     
     private IssueDomainEvents issueEvents;
-    private EngineeringKnowledgeBaseService ekbService;
 
     public Connector createNewInstance(String id) {
         TicketHandlerFactory ticketFactory = new TicketHandlerFactory();
         TracConnector tracConnector = new TracConnector(id, ticketFactory);
-        tracConnector.setEkbService(ekbService);
         tracConnector.setIssueEvents(issueEvents);
         return tracConnector;
     };
@@ -59,9 +56,5 @@ public class TracServiceInstanceFactory extends
     
     public void setIssueEvents(IssueDomainEvents issueEvents) {
         this.issueEvents = issueEvents;
-    }
-
-    public void setEkbService(EngineeringKnowledgeBaseService ekbService) {
-        this.ekbService = ekbService;
     }
 }

@@ -33,8 +33,8 @@ import org.openengsb.core.api.DomainMethodExecutionException;
 import org.openengsb.core.api.DomainMethodNotImplementedException;
 import org.openengsb.core.api.edb.EDBEventType;
 import org.openengsb.core.api.edb.EDBException;
-import org.openengsb.core.api.ekb.EngineeringKnowledgeBaseService;
 import org.openengsb.core.common.AbstractOpenEngSBConnectorService;
+import org.openengsb.core.common.util.ModelUtils;
 import org.openengsb.domain.issue.IssueDomain;
 import org.openengsb.domain.issue.IssueDomainEvents;
 import org.openengsb.domain.issue.models.Field;
@@ -50,7 +50,6 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
     private static final Logger LOGGER = LoggerFactory.getLogger(TracConnector.class);
     
     private IssueDomainEvents issueEvents;
-    private EngineeringKnowledgeBaseService ekbService;
 
     private AliveState state = AliveState.DISCONNECTED;
     private final TicketHandlerFactory ticketFactory;
@@ -120,8 +119,8 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
     }
     
     private Issue loadIssue(Integer id) {
-        Issue issue = ekbService.createEmptyModelObject(Issue.class);
-        // TODO: implement !!!
+        Issue issue = ModelUtils.createEmptyModelObject(Issue.class);
+        // TODO OPENENGSB-1840: implement !!!
         return issue;
     }
 
@@ -263,9 +262,5 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
     
     public void setIssueEvents(IssueDomainEvents issueEvents) {
         this.issueEvents = issueEvents;
-    }
-
-    public void setEkbService(EngineeringKnowledgeBaseService ekbService) {
-        this.ekbService = ekbService;
     }
 }

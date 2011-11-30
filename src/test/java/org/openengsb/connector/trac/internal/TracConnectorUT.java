@@ -20,15 +20,12 @@ package org.openengsb.connector.trac.internal;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
-import org.openengsb.core.api.ekb.EngineeringKnowledgeBaseService;
+import org.openengsb.core.common.util.ModelUtils;
 import org.openengsb.domain.issue.IssueDomainEvents;
 import org.openengsb.domain.issue.models.Issue;
 import org.openengsb.domain.issue.models.Priority;
@@ -44,20 +41,10 @@ public class TracConnectorUT {
         ticketFactory.setServerUrl("http://127.0.0.1:8000/myTracProj/xmlrpc");
         TracConnector tracImpl = new TracConnector("1", ticketFactory);
         
-        EngineeringKnowledgeBaseService ekbService = mock(EngineeringKnowledgeBaseService.class);
-        doAnswer(new Answer<java.lang.Object>() {
-            public java.lang.Object answer(InvocationOnMock invocation) {
-                return new TestIssue();
-            }
-        })
-            .when(ekbService).createEmptyModelObject(Issue.class);
-        
         IssueDomainEvents domainEvents = mock(IssueDomainEvents.class);
-        
-        tracImpl.setEkbService(ekbService);
         tracImpl.setIssueEvents(domainEvents);
         
-        Issue issue = new TestIssue();
+        Issue issue = ModelUtils.createEmptyModelObject(Issue.class);
         issue.setDescription("test Issue");
         issue.setSummary("test summery");
         issue.setId("99");
