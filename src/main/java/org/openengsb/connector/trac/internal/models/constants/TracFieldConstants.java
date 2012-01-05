@@ -17,7 +17,7 @@
 
 package org.openengsb.connector.trac.internal.models.constants;
 
-import org.openengsb.domain.issue.models.IssueAttribute;
+import org.openengsb.domain.issue.IssueAttribute;
 
 public enum TracFieldConstants implements IssueAttribute {
 

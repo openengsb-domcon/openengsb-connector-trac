@@ -26,10 +26,10 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.junit.Test;
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
 import org.openengsb.core.common.util.ModelUtils;
+import org.openengsb.domain.issue.Issue;
 import org.openengsb.domain.issue.IssueDomainEvents;
-import org.openengsb.domain.issue.models.Issue;
-import org.openengsb.domain.issue.models.Priority;
-import org.openengsb.domain.issue.models.Status;
+import org.openengsb.domain.issue.Priority;
+import org.openengsb.domain.issue.Status;
 
 public class TracConnectorUT {
 

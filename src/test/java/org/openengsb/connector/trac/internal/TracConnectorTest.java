@@ -39,12 +39,12 @@ import org.openengsb.connector.trac.internal.models.constants.TracPriorityConsta
 import org.openengsb.connector.trac.internal.models.constants.TracStatusConstants;
 import org.openengsb.connector.trac.internal.models.xmlrpc.Ticket;
 import org.openengsb.core.common.util.ModelUtils;
+import org.openengsb.domain.issue.Field;
+import org.openengsb.domain.issue.Issue;
+import org.openengsb.domain.issue.IssueAttribute;
 import org.openengsb.domain.issue.IssueDomainEvents;
-import org.openengsb.domain.issue.models.Field;
-import org.openengsb.domain.issue.models.Issue;
-import org.openengsb.domain.issue.models.IssueAttribute;
-import org.openengsb.domain.issue.models.Priority;
-import org.openengsb.domain.issue.models.Status;
+import org.openengsb.domain.issue.Priority;
+import org.openengsb.domain.issue.Status;
 
 public class TracConnectorTest {
 
