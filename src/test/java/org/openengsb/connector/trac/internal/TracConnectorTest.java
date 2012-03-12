@@ -38,11 +38,11 @@ import org.openengsb.connector.trac.internal.models.constants.TracFieldConstants
 import org.openengsb.connector.trac.internal.models.constants.TracPriorityConstants;
 import org.openengsb.connector.trac.internal.models.constants.TracStatusConstants;
 import org.openengsb.connector.trac.internal.models.xmlrpc.Ticket;
+import org.openengsb.core.api.ekb.PersistInterface;
 import org.openengsb.core.common.util.ModelUtils;
 import org.openengsb.domain.issue.Field;
 import org.openengsb.domain.issue.Issue;
 import org.openengsb.domain.issue.IssueAttribute;
-import org.openengsb.domain.issue.IssueDomainEvents;
 import org.openengsb.domain.issue.Priority;
 import org.openengsb.domain.issue.Status;
 
@@ -58,8 +58,8 @@ public class TracConnectorTest {
         tracConnector = new TracConnector("1", tc);
         when(tc.createTicket()).thenReturn(ticketMock);
         
-        IssueDomainEvents domainEvents = mock(IssueDomainEvents.class);
-        tracConnector.setIssueEvents(domainEvents);
+        PersistInterface persistInterface = mock(PersistInterface.class);
+        tracConnector.setPersistInterface(persistInterface);
     }
 
     @Test

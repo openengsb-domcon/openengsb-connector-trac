@@ -34,7 +34,7 @@
       </entry>
     </service-properties>
     <bean class="org.openengsb.connector.trac.internal.TracServiceInstanceFactory">
-      <property name="issueEvents" ref="issueEvents" />
+      <property name="persistInterface" ref="persistInterface" />
     </bean>
   </service>
 
@@ -56,6 +56,6 @@
     </bean>
   </service>
   
-  <reference id="issueEvents" interface="org.openengsb.domain.issue.IssueDomainEvents" />
+  <reference id="persistInterface" interface="org.openengsb.core.api.ekb.PersistInterface" />
 
 </blueprint>

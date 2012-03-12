@@ -21,18 +21,18 @@ import java.util.Map;
 
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
 import org.openengsb.core.api.Connector;
+import org.openengsb.core.api.ekb.PersistInterface;
 import org.openengsb.core.common.AbstractConnectorInstanceFactory;
-import org.openengsb.domain.issue.IssueDomainEvents;
 
 public class TracServiceInstanceFactory extends
         AbstractConnectorInstanceFactory<TracConnector> {
     
-    private IssueDomainEvents issueEvents;
+    private PersistInterface persistInterface;
 
     public Connector createNewInstance(String id) {
         TicketHandlerFactory ticketFactory = new TicketHandlerFactory();
         TracConnector tracConnector = new TracConnector(id, ticketFactory);
-        tracConnector.setIssueEvents(issueEvents);
+        tracConnector.setPersistInterface(persistInterface);
         return tracConnector;
     };
 
@@ -54,7 +54,7 @@ public class TracServiceInstanceFactory extends
         }
     }
     
-    public void setIssueEvents(IssueDomainEvents issueEvents) {
-        this.issueEvents = issueEvents;
+    public void setPersistInterface(PersistInterface persistInterface) {
+        this.persistInterface = persistInterface;
     }
 }

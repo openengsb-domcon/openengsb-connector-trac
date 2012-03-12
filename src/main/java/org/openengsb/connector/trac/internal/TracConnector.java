@@ -29,17 +29,15 @@ import org.openengsb.connector.trac.internal.models.constants.TracPriorityConsta
 import org.openengsb.connector.trac.internal.models.constants.TracStatusConstants;
 import org.openengsb.connector.trac.internal.models.xmlrpc.Ticket;
 import org.openengsb.core.api.AliveState;
-import org.openengsb.core.api.DomainMethodExecutionException;
 import org.openengsb.core.api.DomainMethodNotImplementedException;
-import org.openengsb.core.api.edb.EDBEventType;
-import org.openengsb.core.api.edb.EDBException;
+import org.openengsb.core.api.ekb.EKBCommit;
+import org.openengsb.core.api.ekb.PersistInterface;
 import org.openengsb.core.common.AbstractOpenEngSBConnectorService;
 import org.openengsb.core.common.util.ModelUtils;
 import org.openengsb.domain.issue.Field;
 import org.openengsb.domain.issue.Issue;
 import org.openengsb.domain.issue.IssueAttribute;
 import org.openengsb.domain.issue.IssueDomain;
-import org.openengsb.domain.issue.IssueDomainEvents;
 import org.openengsb.domain.issue.Priority;
 import org.openengsb.domain.issue.Status;
 import org.slf4j.Logger;
@@ -49,7 +47,7 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TracConnector.class);
     
-    private IssueDomainEvents issueEvents;
+    private PersistInterface persistInterface;
 
     private AliveState state = AliveState.DISCONNECTED;
     private final TicketHandlerFactory ticketFactory;
@@ -69,8 +67,8 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
             issueId = ticket.create(issue.getSummary(), issue.getDescription(), attributes).toString();
             state = AliveState.ONLINE;
             LOGGER.info("Successfully created issue {}, ID is: {}.", issue.getSummary(), issueId);
-            
-            sendEvent(EDBEventType.INSERT, issue);
+            EKBCommit commit = createEKBCommit().addInsert(issue);
+            persistInterface.commit(commit);
         } catch (XmlRpcException e) {
             LOGGER.error("Error creating issue {}. XMLRPC call failed.", issue.getSummary());
             state = AliveState.OFFLINE;
@@ -111,7 +109,8 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
             ticket.update(Integer.valueOf(id), comment, attributes);
             
             Issue issue = loadIssue(Integer.valueOf(id));
-            sendEvent(EDBEventType.UPDATE, issue);
+            EKBCommit commit = createEKBCommit().addUpdate(issue);
+            persistInterface.commit(commit);
             LOGGER.info("Successfully updated issue {} with {} changes.", id, changes.size());
         } catch (XmlRpcException e) {
             LOGGER.error("Error updating issue {}. XMLRPC call failed.", id);
@@ -238,29 +237,13 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
             }
         }
     }
-    
-    /**
-     * Sends a CUD event. The type is defined by the enumeration EDBEventType. Also the oid and the role are defined
-     * here.
-     */
-    private void sendEvent(EDBEventType type, Issue issue) {
-        // TODO: remove this if statement after the loadIssue is implemented
-        if(type == EDBEventType.UPDATE) {
-            return;
-        }
-        try {
-            sendEDBEvent(type, issue, issueEvents);
-        } catch (EDBException e) {
-            throw new DomainMethodExecutionException(e);
-        }
-    }
 
     @Override
     public AliveState getAliveState() {
         return state;
     }
     
-    public void setIssueEvents(IssueDomainEvents issueEvents) {
-        this.issueEvents = issueEvents;
+    public void setPersistInterface(PersistInterface persistInterface) {
+        this.persistInterface = persistInterface;
     }
 }

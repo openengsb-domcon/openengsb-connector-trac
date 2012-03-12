@@ -25,9 +25,9 @@ import static org.mockito.Mockito.mock;
 import org.apache.xmlrpc.XmlRpcException;
 import org.junit.Test;
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
+import org.openengsb.core.api.ekb.PersistInterface;
 import org.openengsb.core.common.util.ModelUtils;
 import org.openengsb.domain.issue.Issue;
-import org.openengsb.domain.issue.IssueDomainEvents;
 import org.openengsb.domain.issue.Priority;
 import org.openengsb.domain.issue.Status;
 
@@ -41,8 +41,8 @@ public class TracConnectorUT {
         ticketFactory.setServerUrl("http://127.0.0.1:8000/myTracProj/xmlrpc");
         TracConnector tracImpl = new TracConnector("1", ticketFactory);
         
-        IssueDomainEvents domainEvents = mock(IssueDomainEvents.class);
-        tracImpl.setIssueEvents(domainEvents);
+        PersistInterface persistInterface = mock(PersistInterface.class);
+        tracImpl.setPersistInterface(persistInterface);
         
         Issue issue = ModelUtils.createEmptyModelObject(Issue.class);
         issue.setDescription("test Issue");
