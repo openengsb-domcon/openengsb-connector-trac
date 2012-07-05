@@ -38,8 +38,6 @@ import org.openengsb.connector.trac.internal.models.constants.TracFieldConstants
 import org.openengsb.connector.trac.internal.models.constants.TracPriorityConstants;
 import org.openengsb.connector.trac.internal.models.constants.TracStatusConstants;
 import org.openengsb.connector.trac.internal.models.xmlrpc.Ticket;
-import org.openengsb.core.api.ekb.PersistInterface;
-import org.openengsb.core.common.util.ModelUtils;
 import org.openengsb.domain.issue.Field;
 import org.openengsb.domain.issue.Issue;
 import org.openengsb.domain.issue.IssueAttribute;
@@ -47,9 +45,8 @@ import org.openengsb.domain.issue.Priority;
 import org.openengsb.domain.issue.Status;
 
 public class TracConnectorTest {
-
-    Ticket ticketMock;
-    TracConnector tracConnector;
+    private Ticket ticketMock;
+    private TracConnector tracConnector;
 
     @Before
     public void setUp() {
@@ -57,14 +54,12 @@ public class TracConnectorTest {
         TicketHandlerFactory tc = mock(TicketHandlerFactory.class);
         tracConnector = new TracConnector("1", tc);
         when(tc.createTicket()).thenReturn(ticketMock);
-        
-        PersistInterface persistInterface = mock(PersistInterface.class);
-        tracConnector.setPersistInterface(persistInterface);
+        tracConnector.setCommitHandler(new TracCommitHandler());
     }
 
     @Test
     public void createNewIssue() throws Exception {
-        Issue i = ModelUtils.createEmptyModelObject(Issue.class);
+        Issue i = new Issue();
         String s = "test " + new Date();
         i.setSummary(s);
         i.setDescription("testdescription");
@@ -113,7 +108,7 @@ public class TracConnectorTest {
     public void testCreateOnNotExistingTicket_ShouldPrintErrorMessageAndDonotThrowException() throws Exception {
         when(ticketMock.create(anyString(), anyString(), any(Hashtable.class)))
             .thenThrow(new XmlRpcException("test"));
-        tracConnector.createIssue(ModelUtils.createEmptyModelObject(Issue.class));
+        tracConnector.createIssue(new Issue());
     }
 
     @Test

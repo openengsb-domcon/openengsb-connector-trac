@@ -30,10 +30,7 @@ import org.openengsb.connector.trac.internal.models.constants.TracStatusConstant
 import org.openengsb.connector.trac.internal.models.xmlrpc.Ticket;
 import org.openengsb.core.api.AliveState;
 import org.openengsb.core.api.DomainMethodNotImplementedException;
-import org.openengsb.core.api.ekb.EKBCommit;
-import org.openengsb.core.api.ekb.PersistInterface;
 import org.openengsb.core.common.AbstractOpenEngSBConnectorService;
-import org.openengsb.core.common.util.ModelUtils;
 import org.openengsb.domain.issue.Field;
 import org.openengsb.domain.issue.Issue;
 import org.openengsb.domain.issue.IssueAttribute;
@@ -46,9 +43,7 @@ import org.slf4j.LoggerFactory;
 public class TracConnector extends AbstractOpenEngSBConnectorService implements IssueDomain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TracConnector.class);
-    
-    private PersistInterface persistInterface;
-
+    private TracCommitHandler commitHandler;
     private AliveState state = AliveState.DISCONNECTED;
     private final TicketHandlerFactory ticketFactory;
 
@@ -67,8 +62,7 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
             issueId = ticket.create(issue.getSummary(), issue.getDescription(), attributes).toString();
             state = AliveState.ONLINE;
             LOGGER.info("Successfully created issue {}, ID is: {}.", issue.getSummary(), issueId);
-            EKBCommit commit = createEKBCommit().addInsert(issue);
-            persistInterface.commit(commit);
+            commitHandler.commitInsertIssue(issue, createEKBCommit());
         } catch (XmlRpcException e) {
             LOGGER.error("Error creating issue {}. XMLRPC call failed.", issue.getSummary());
             state = AliveState.OFFLINE;
@@ -109,8 +103,7 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
             ticket.update(Integer.valueOf(id), comment, attributes);
             
             Issue issue = loadIssue(Integer.valueOf(id));
-            EKBCommit commit = createEKBCommit().addUpdate(issue);
-            persistInterface.commit(commit);
+            commitHandler.commitUpdateIssue(issue, createEKBCommit());
             LOGGER.info("Successfully updated issue {} with {} changes.", id, changes.size());
         } catch (XmlRpcException e) {
             LOGGER.error("Error updating issue {}. XMLRPC call failed.", id);
@@ -118,7 +111,7 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
     }
     
     private Issue loadIssue(Integer id) {
-        Issue issue = ModelUtils.createEmptyModelObject(Issue.class);
+        Issue issue = new Issue();
         // TODO OPENENGSB-1840: implement !!!
         return issue;
     }
@@ -243,7 +236,7 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
         return state;
     }
     
-    public void setPersistInterface(PersistInterface persistInterface) {
-        this.persistInterface = persistInterface;
+    public void setCommitHandler(TracCommitHandler commitHandler) {
+        this.commitHandler = commitHandler;
     }
 }

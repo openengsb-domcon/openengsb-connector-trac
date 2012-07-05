@@ -31,8 +31,10 @@ public class TracServiceInstanceFactory extends
 
     public Connector createNewInstance(String id) {
         TicketHandlerFactory ticketFactory = new TicketHandlerFactory();
+        TracCommitHandler handler = new TracCommitHandler();
+        handler.setPersistInterface(persistInterface);
         TracConnector tracConnector = new TracConnector(id, ticketFactory);
-        tracConnector.setPersistInterface(persistInterface);
+        tracConnector.setCommitHandler(handler);
         return tracConnector;
     };
 

@@ -20,13 +20,10 @@ package org.openengsb.connector.trac.internal;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.mockito.Mockito.mock;
 
 import org.apache.xmlrpc.XmlRpcException;
 import org.junit.Test;
 import org.openengsb.connector.trac.internal.models.TicketHandlerFactory;
-import org.openengsb.core.api.ekb.PersistInterface;
-import org.openengsb.core.common.util.ModelUtils;
 import org.openengsb.domain.issue.Issue;
 import org.openengsb.domain.issue.Priority;
 import org.openengsb.domain.issue.Status;
@@ -40,11 +37,9 @@ public class TracConnectorUT {
         ticketFactory.setUserPassword("");
         ticketFactory.setServerUrl("http://127.0.0.1:8000/myTracProj/xmlrpc");
         TracConnector tracImpl = new TracConnector("1", ticketFactory);
+        tracImpl.setCommitHandler(new TracCommitHandler());
         
-        PersistInterface persistInterface = mock(PersistInterface.class);
-        tracImpl.setPersistInterface(persistInterface);
-        
-        Issue issue = ModelUtils.createEmptyModelObject(Issue.class);
+        Issue issue = new Issue();
         issue.setDescription("test Issue");
         issue.setSummary("test summery");
         issue.setId("99");
