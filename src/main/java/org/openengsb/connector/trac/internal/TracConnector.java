@@ -30,6 +30,7 @@ import org.openengsb.connector.trac.internal.models.constants.TracStatusConstant
 import org.openengsb.connector.trac.internal.models.xmlrpc.Ticket;
 import org.openengsb.core.api.AliveState;
 import org.openengsb.core.api.DomainMethodNotImplementedException;
+import org.openengsb.core.api.ekb.EKBCommit;
 import org.openengsb.core.common.AbstractOpenEngSBConnectorService;
 import org.openengsb.domain.issue.Field;
 import org.openengsb.domain.issue.Issue;
@@ -114,6 +115,12 @@ public class TracConnector extends AbstractOpenEngSBConnectorService implements 
         Issue issue = new Issue();
         // TODO OPENENGSB-1840: implement !!!
         return issue;
+    }
+    
+    private EKBCommit createEKBCommit() {
+        EKBCommit commit = new EKBCommit();
+        commit.setDomainId(domainId).setConnectorId(connectorId).setInstanceId(instanceId);
+        return commit;
     }
 
     @Override
